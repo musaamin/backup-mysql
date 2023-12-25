@@ -45,7 +45,7 @@ BACKUPDIR=
 RCLONEREMOTES=
 RCLONEDIR=`
 
-	err := ioutil.WriteFile(fileName, []byte(configContent), 0644)
+	err := ioutil.WriteFile(fileName, []byte(configContent), 0600)
 	if err != nil {
 		fmt.Println("Error creating configuration file:", err)
 		return
