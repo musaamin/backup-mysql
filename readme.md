@@ -6,8 +6,7 @@ Program sederhana untuk melakukan backup MySQL/MariaDB database dan sinkronisasi
 Download `backup-mysql`
 
 ```
-wget https://raw.githubusercontent.com/musaamin/backup-mysql/main/backup-mysql
-sudo mv backup-mysql /usr/local/bin
+sudo wget https://raw.githubusercontent.com/musaamin/backup-mysql/main/backup-mysql -O /usr/local/bin/backup-mysql
 sudo chmod +x /usr/local/bin/backup-mysql
 ```
 
@@ -28,7 +27,7 @@ DBUSER=myuser
 DBPASS=mypassword
 BACKUPDIR=/path/to/backup
 RCLONEREMOTES=remote1, remote2
-RCLONEDIR=backup
+RCLONEDIR=cloud-dir/backup
 ```
 
 Melakukan backup database.

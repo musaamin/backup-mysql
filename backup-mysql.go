@@ -82,7 +82,7 @@ func exportMySQL(configFile string) {
 		}
 	}
 
-	currentDate := time.Now().Format("20060102")
+	currentDate := time.Now().Format("20060102_150405")
 	backupFileName := fmt.Sprintf("%s-%s.sql.gz", dbName, currentDate)
 
 	// Check if the backup directory exists, if not, create it
