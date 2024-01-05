@@ -36,14 +36,19 @@ func main() {
 }
 
 func initializeConfig(fileName string) {
-	configContent := `DBHOST=
-DBPORT=
-DBNAME=
-DBUSER=
-DBPASS=
-BACKUPDIR=
-RCLONEREMOTES=
-RCLONEDIR=`
+	configContent := `[client]
+host=
+port=
+user=
+password=
+
+[database]
+dbname=
+
+[rclone]
+backupdir=
+rcloneremotes=
+clouddir=`
 
 	err := ioutil.WriteFile(fileName, []byte(configContent), 0600)
 	if err != nil {
@@ -64,21 +69,13 @@ func exportMySQL(configFile string) {
 
 	// Parse configuration file
 	configLines := strings.Split(string(content), "\n")
-	var dbHost, dbPort, dbName, dbUser, dbPass, backupDir string
+	var dbName, backupDir string
 
 	for _, line := range configLines {
-		if strings.HasPrefix(line, "DBHOST=") {
-			dbHost = strings.TrimPrefix(line, "DBHOST=")
-		} else if strings.HasPrefix(line, "DBPORT=") {
-			dbPort = strings.TrimPrefix(line, "DBPORT=")
-		} else if strings.HasPrefix(line, "DBNAME=") {
-			dbName = strings.TrimPrefix(line, "DBNAME=")
-		} else if strings.HasPrefix(line, "DBUSER=") {
-			dbUser = strings.TrimPrefix(line, "DBUSER=")
-		} else if strings.HasPrefix(line, "DBPASS=") {
-			dbPass = strings.TrimPrefix(line, "DBPASS=")
-		} else if strings.HasPrefix(line, "BACKUPDIR=") {
-			backupDir = strings.TrimPrefix(line, "BACKUPDIR=")
+		if strings.HasPrefix(line, "dbname=") {
+			dbName = strings.TrimPrefix(line, "dbname=")
+		} else if strings.HasPrefix(line, "backupdir=") {
+			backupDir = strings.TrimPrefix(line, "backupdir=")
 		}
 	}
 
@@ -95,7 +92,7 @@ func exportMySQL(configFile string) {
 		}
 	}
 
-	cmd := exec.Command("mysqldump", "-h"+dbHost, "-P"+dbPort, "-u"+dbUser, "-p"+dbPass, dbName)
+	cmd := exec.Command("mysqldump", "--defaults-extra-file="+configFile, dbName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		var errMsg string
@@ -143,17 +140,17 @@ func runRclone(configFile string) {
 	var backupDir, rcloneRemotes, rcloneDir string
 
 	for _, line := range configLines {
-		if strings.HasPrefix(line, "BACKUPDIR=") {
-			backupDir = strings.TrimPrefix(line, "BACKUPDIR=")
-		} else if strings.HasPrefix(line, "RCLONEREMOTES=") {
-			rcloneRemotes = strings.TrimPrefix(line, "RCLONEREMOTES=")
-		} else if strings.HasPrefix(line, "RCLONEDIR=") {
-			rcloneDir = strings.TrimPrefix(line, "RCLONEDIR=")
+		if strings.HasPrefix(line, "backupdir=") {
+			backupDir = strings.TrimPrefix(line, "backupdir=")
+		} else if strings.HasPrefix(line, "rcloneremotes=") {
+			rcloneRemotes = strings.TrimPrefix(line, "rcloneremotes=")
+		} else if strings.HasPrefix(line, "clouddir=") {
+			rcloneDir = strings.TrimPrefix(line, "clouddir=")
 		}
 	}
 
 	if rcloneRemotes == "" {
-		fmt.Println("Error: RCLONEREMOTES is not specified in the configuration file.")
+		fmt.Println("Error: rcloneremotes is not specified in the configuration file.")
 		return
 	}
 

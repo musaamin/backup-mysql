@@ -20,14 +20,19 @@ backup-mysql init mydb.txt
 Atur file konfigurasi `mydb.txt`.
 
 ```
-DBHOST=localhost
-DBPORT=3306
-DBNAME=mydatabase
-DBUSER=myuser
-DBPASS=mypassword
-BACKUPDIR=/path/to/backup
-RCLONEREMOTES=remote1, remote2
-RCLONEDIR=cloud-dir/backup
+[client]
+host=localhost
+port=3306
+user=dbuser
+password=dbpassword
+
+[database]
+dbname=dbname
+
+[rclone]
+backupdir=/local/dir
+rcloneremotes=remote1, remote2
+clouddir=cloud-dir/backup
 ```
 
 Melakukan backup database.
