@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 	"io/ioutil"
-	"compress/gzip"
 )
 
 func main() {
@@ -92,38 +91,15 @@ func exportMySQL(configFile string) {
 		}
 	}
 
-	cmd := exec.Command("mysqldump", "--defaults-extra-file="+configFile, dbName)
+	backupFilePath := fmt.Sprintf("%s/%s", backupDir, backupFileName)
+
+	// Using native gzip for compression
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("mysqldump --defaults-extra-file=%s %s | gzip > %s", configFile, dbName, backupFilePath))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		var errMsg string
-		if exitError, ok := err.(*exec.ExitError); ok {
-			exitStatus := exitError.ExitCode()
-			if exitStatus == 2 {
-				errMsg = "Error: Authentication Failed or Database Does Not Exist."
-			} else {
-				errMsg = fmt.Sprintf("Error running mysqldump: Exit Status %d", exitStatus)
-			}
-		} else {
-			errMsg = "Error running mysqldump: " + err.Error()
-		}
-		fmt.Println(errMsg)
+		fmt.Printf("Error running command: %s\nOutput: %s\n", err, string(output))
 		return
 	}
-
-	outFile, err := os.Create(backupDir + "/" + backupFileName)
-	if err != nil {
-		fmt.Println("Error creating backup file:", err)
-		return
-	}
-	defer outFile.Close()
-
-	gzWriter := gzip.NewWriter(outFile)
-	_, err = gzWriter.Write(output)
-	if err != nil {
-		fmt.Println("Error writing backup content:", err)
-		return
-	}
-	defer gzWriter.Close()
 
 	fmt.Println("Backup completed:", backupFileName)
 }
